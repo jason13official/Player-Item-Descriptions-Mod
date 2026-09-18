@@ -16,7 +16,7 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+          "io.github.jason13official.player_item_descriptions.PlayerItemDescriptionsFabric"
         ]
     },
     "mixins": [
