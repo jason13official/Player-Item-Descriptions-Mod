@@ -17,7 +17,10 @@
     "entrypoints": {
         "main": [
           "io.github.jason13official.player_item_descriptions.PlayerItemDescriptionsFabric"
-        ]
+        ],
+      "client": [
+        "io.github.jason13official.player_item_descriptions.PlayerItemDescriptionsClientFabric"
+      ]
     },
     "mixins": [
         "${mod_id}.mixins.json",
