@@ -1,34 +1,37 @@
 package io.github.jason13official.player_item_descriptions.mixin;
 
 import io.github.jason13official.player_item_descriptions.PlayerItemDescriptionsClient;
+import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilMenuAccessor;
+import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilScreenAccessor;
 import io.github.jason13official.player_item_descriptions.impl.network.packet.DescribeItemC2SPacket;
 import io.github.jason13official.player_item_descriptions.impl.registry.ModComponents;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AnvilScreen.class)
-public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> {
+public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> implements IAnvilScreenAccessor {
 
   @Shadow private EditBox name;
+
   @Unique
   private Button player_item_descriptions$button;
 
@@ -43,146 +46,148 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> {
     super(menu, inventory, title, menuResource);
   }
 
-//  @Inject(at = @At("HEAD"), method = "keyPressed", cancellable = true)
-//  private void player_item_descriptions$keyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
-//
-////    if (!this.player_item_descriptions$page.visible && !this.player_item_descriptions$page.keyPressed(event) && !this.player_item_descriptions$pageCanConsumeInput()) {
-////
-////      return;
-////    }
-//
-//
-//  }
-
   @Inject(at = @At("TAIL"), method = "subInit")
-  private void player_item_descriptions$constructor(CallbackInfo ci) {
+  private void player_item_descriptions$subInit(CallbackInfo ci) {
 
-    AnvilScreen self = (AnvilScreen) (Object) this;
+    this.player_item_descriptions$button = Button.builder(Component.literal("T_"),
+        b -> this.player_item_descriptions$togglePage()).bounds(this.leftPos + 154, this.topPos + 47, 16, 16).build();
+    this.player_item_descriptions$button.active = this.menu.getSlot(0).hasItem();
+    this.addRenderableWidget(this.player_item_descriptions$button);
 
-    // 176, 166
-    int xo = (self.width - 176) / 2;
-    int yo = (self.height - 166) / 2;
-
-    player_item_descriptions$button = Button.builder(Component.literal("T_"),
-        b -> this.player_item_descriptions$onButtonClick()).bounds(xo + 154, yo + 47, 16, 16).build();
-
-    self.addRenderableWidget(player_item_descriptions$button);
-
-    this.player_item_descriptions$page = MultiLineEditBox.builder().setShowDecorations(false).setTextColor(0xFFFFFFFF).setCursorColor(0xFFFFFFFF).setShowBackground(true).setTextShadow(false).setX((self.width - 114) / 2 - 8).setY(28).build(self.getFont(), 122, 134, CommonComponents.EMPTY);
-    this.player_item_descriptions$page.active = false;
+    this.player_item_descriptions$page = MultiLineEditBox.builder()
+        .setShowDecorations(false)
+        .setTextColor(0xFFFFFFFF)
+        .setCursorColor(0xFFFFFFFF)
+        .setShowBackground(true)
+        .setTextShadow(false)
+        .setX(this.leftPos + (this.imageWidth - 122) / 2)
+        .setY(this.topPos + 16)
+        .build(this.font, 122, 134, CommonComponents.EMPTY);
     this.player_item_descriptions$page.setCharacterLimit(1024);
     this.player_item_descriptions$page.setLineLimit(14);
     this.player_item_descriptions$page.setValueListener(this::player_item_descriptions$setDescription);
     this.player_item_descriptions$page.visible = false;
-    self.addRenderableWidget(this.player_item_descriptions$page);
+    this.player_item_descriptions$page.active = false;
+    this.addWidget(this.player_item_descriptions$page);
+
+    this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
   }
 
-  @Unique
-  private void player_item_descriptions$onButtonClick() {
+  @Override
+  public boolean player_item_descriptions$isPageVisible() {
 
-    System.out.println("Player pressed button!");
+    return this.player_item_descriptions$page != null && this.player_item_descriptions$page.visible;
+  }
 
-    AnvilScreen self = (AnvilScreen) (Object) this;
+  @Override
+  public void player_item_descriptions$extractPage(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 
+    this.player_item_descriptions$page.extractRenderState(graphics, mouseX, mouseY, a);
+  }
 
-    // toggle the visibility of the multi-line edit box
-    this.player_item_descriptions$page.visible = !this.player_item_descriptions$page.visible;
+  @Inject(at = @At("HEAD"), method = "keyPressed", cancellable = true)
+  private void player_item_descriptions$keyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
 
-    Slot slot = ((AnvilMenu)this.menu).getSlot(0);
-
-    if (!slot.hasItem()) {
+    if (this.player_item_descriptions$page == null || !this.player_item_descriptions$page.visible) {
       return;
     }
 
-    if (!this.player_item_descriptions$page.visible) {
+    if (event.isEscape()) {
 
-      this.name.active = true;
-      this.player_item_descriptions$page.active = false;
+      this.player_item_descriptions$closePage(true);
+      cir.setReturnValue(true);
+      return;
+    }
 
-      if (player_item_descriptions$getDescription().isEmpty() && !slot.getItem().get(ModComponents.CUSTOM_DESCRIPTION).getString().isEmpty()) {
-        // if empty new description, and we had a description, remove it / set to empty
-      } else {
-        // set the new description
+    if (this.player_item_descriptions$page.keyPressed(event) || this.player_item_descriptions$page.capturesInput()) {
 
-        if (!this.player_item_descriptions$description.equals(slot.getItem().get(ModComponents.CUSTOM_DESCRIPTION))) {
-
-          // sets input slot
-          // slot.getItem().set(ModComponents.CUSTOM_DESCRIPTION, Component.literal(this.player_item_descriptions$getDescription()));
-
-          // if (((AnvilMenu)this.menu).setItemName(player_item_descriptions$description)) {
-          // if (this.player_item_descriptions$setItemDescription(this.player_item_descriptions$description)) {
-          if (DescribeItemC2SPacket.setItemDescription(((AnvilMenu)this.menu), this.player_item_descriptions$description)) {
-            // this.minecraft.player.connection.send(new ServerboundRenameItemPacket(player_item_descriptions$description));
-            PlayerItemDescriptionsClient.c2s.accept(new DescribeItemC2SPacket(this.player_item_descriptions$description));
-          }
-        }
-
-      }
-    } else {
-
-      this.name.active = false;
-      this.player_item_descriptions$page.active = true;
-
-      // get original description, if any
-      // populate our edit box
-      if (slot.getItem().has(ModComponents.CUSTOM_DESCRIPTION) && slot.getItem().get(ModComponents.CUSTOM_DESCRIPTION).getString().isEmpty()) {
-        this.player_item_descriptions$setDescription(slot.getItem().get(ModComponents.CUSTOM_DESCRIPTION).getString());
-      }
+      cir.setReturnValue(true);
     }
   }
 
   @Inject(at = @At("TAIL"), method = "slotChanged")
   private void player_item_descriptions$slotChanged(AbstractContainerMenu container, int slotIndex, ItemStack itemStack, CallbackInfo ci) {
 
-    // if first slot updated and not empty, has description
-    if (slotIndex == 0 && !itemStack.isEmpty() && itemStack.has(ModComponents.CUSTOM_DESCRIPTION)) {
-      this.player_item_descriptions$setDescription(itemStack.get(ModComponents.CUSTOM_DESCRIPTION).getString());
+    if (slotIndex != 0) {
+      return;
+    }
+
+    this.player_item_descriptions$button.active = !itemStack.isEmpty();
+    this.player_item_descriptions$readDescription(itemStack);
+
+    if (itemStack.isEmpty()) {
+      this.player_item_descriptions$closePage(false);
+      return;
+    }
+
+    this.player_item_descriptions$applyDescription(this.player_item_descriptions$description);
+
+    if (this.player_item_descriptions$page.visible) {
+      this.setFocused(this.player_item_descriptions$page);
     }
   }
 
   @Unique
-  private String player_item_descriptions$getDescription() {
+  private void player_item_descriptions$togglePage() {
 
-    return player_item_descriptions$description;
+    if (this.player_item_descriptions$page.visible) {
+      this.player_item_descriptions$closePage(true);
+    } else {
+      this.player_item_descriptions$openPage();
+    }
+  }
+
+  @Unique
+  private void player_item_descriptions$openPage() {
+
+    if (!this.menu.getSlot(0).hasItem()) {
+      return;
+    }
+
+    this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
+    this.player_item_descriptions$page.visible = true;
+    this.player_item_descriptions$page.active = true;
+    this.name.active = false;
+    this.setFocused(this.player_item_descriptions$page);
+  }
+
+  @Unique
+  private void player_item_descriptions$closePage(boolean apply) {
+
+    this.player_item_descriptions$page.visible = false;
+    this.player_item_descriptions$page.active = false;
+    this.name.active = true;
+    this.setFocused(this.name);
+
+    if (apply) {
+      this.player_item_descriptions$applyDescription(this.player_item_descriptions$page.getValue());
+    }
+  }
+
+  @Unique
+  private void player_item_descriptions$readDescription(ItemStack itemStack) {
+
+    Component description = itemStack.get(ModComponents.CUSTOM_DESCRIPTION);
+    String value = description == null ? "" : description.getString();
+
+    this.player_item_descriptions$page.setValue(value);
+    this.player_item_descriptions$description = value;
+  }
+
+  @Unique
+  private void player_item_descriptions$applyDescription(String description) {
+
+    this.player_item_descriptions$description = description;
+
+    if (((IAnvilMenuAccessor) this.menu).player_item_descriptions$setItemDescription(description)) {
+
+      PlayerItemDescriptionsClient.c2s.accept(new DescribeItemC2SPacket(description));
+    }
   }
 
   @Unique
   private void player_item_descriptions$setDescription(String newDescription) {
 
     this.player_item_descriptions$description = newDescription;
-  }
-
-  @Unique
-  public boolean player_item_descriptions$pageCanConsumeInput() {
-
-    return true;
-    // return this.player_item_descriptions$page.isActive() && this.player_item_descriptions$page.isFocused(); // && this.player_item_descriptions$page.isEditable();
-  }
-
-  @Unique
-  private boolean player_item_descriptions$setItemDescription(String newDescription) {
-
-    String validatedDesc = validateDesc(newDescription);
-    if (validatedDesc != null && !validatedDesc.equals(this.player_item_descriptions$description)) {
-      this.player_item_descriptions$description = validatedDesc;
-      if (((AnvilMenu)this.menu).getSlot(2).hasItem()) {
-        ItemStack itemStack = ((AnvilMenu)this.menu).getSlot(2).getItem();
-        if (StringUtil.isBlank(validatedDesc)) {
-          itemStack.remove(ModComponents.CUSTOM_DESCRIPTION);
-        } else {
-          itemStack.set(ModComponents.CUSTOM_DESCRIPTION, Component.literal(validatedDesc));
-        }
-      }
-
-      ((AnvilMenu)this.menu).createResult();
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  private static @Nullable String validateDesc(String name) {
-    String filteredName = StringUtil.filterText(name);
-    return filteredName.length() <= 1024 ? filteredName : null;
   }
 }
