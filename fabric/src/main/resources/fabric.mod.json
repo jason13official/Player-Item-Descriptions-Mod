@@ -8,16 +8,19 @@
         "${mod_author}"
     ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "homepage": "https://github.com/jason13official/Player-Item-Descriptions-Mod",
+        "sources": "https://github.com/jason13official/Player-Item-Descriptions-Mod"
     },
     "license": "${license}",
     "icon": "${mod_id}.png",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
-        ]
+          "io.github.jason13official.player_item_descriptions.PlayerItemDescriptionsFabric"
+        ],
+      "client": [
+        "io.github.jason13official.player_item_descriptions.PlayerItemDescriptionsClientFabric"
+      ]
     },
     "mixins": [
         "${mod_id}.mixins.json",
