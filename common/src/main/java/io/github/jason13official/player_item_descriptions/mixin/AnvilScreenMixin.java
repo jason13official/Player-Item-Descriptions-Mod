@@ -80,7 +80,15 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     this.player_item_descriptions$page.active = false;
     this.addWidget(this.player_item_descriptions$page);
 
-    this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
+    // subInit also runs on resize, when the menu may already hold a pending description
+    String pending = ((IAnvilMenuAccessor) this.menu).player_item_descriptions$getItemDescription();
+
+    if (pending != null) {
+      this.player_item_descriptions$page.setValue(pending);
+      this.player_item_descriptions$description = pending;
+    } else {
+      this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
+    }
   }
 
   @Override
@@ -170,7 +178,8 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
       return;
     }
 
-    this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
+    // the page still holds the pending description; re-reading the input item would drop it,
+    // since only the output item carries a description that hasn't been taken yet
     this.player_item_descriptions$page.visible = true;
     this.player_item_descriptions$page.active = true;
     this.name.active = false;
