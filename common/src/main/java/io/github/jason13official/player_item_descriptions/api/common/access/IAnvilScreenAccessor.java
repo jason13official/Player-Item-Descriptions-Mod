@@ -7,4 +7,7 @@ public interface IAnvilScreenAccessor {
   boolean player_item_descriptions$isPageVisible();
 
   void player_item_descriptions$extractPage(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a);
+
+  /// true when the open page's panel should swallow a click at this position (so slots underneath aren't clicked)
+  boolean player_item_descriptions$blocksMouse(double mouseX, double mouseY);
 }

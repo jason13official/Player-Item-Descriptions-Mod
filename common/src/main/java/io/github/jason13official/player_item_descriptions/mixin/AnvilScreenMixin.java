@@ -12,7 +12,7 @@ import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.network.chat.CommonComponents;
+import io.github.jason13official.player_item_descriptions.impl.client.gui.DescriptionPanel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -41,6 +41,12 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   @Unique
   private String player_item_descriptions$description = "";
 
+  @Unique
+  private int player_item_descriptions$panelX;
+
+  @Unique
+  private int player_item_descriptions$panelY;
+
   /// dummy
   public AnvilScreenMixin(AnvilMenu menu, Inventory inventory, Component title, Identifier menuResource) {
     super(menu, inventory, title, menuResource);
@@ -54,17 +60,21 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     this.player_item_descriptions$button.active = this.menu.getSlot(0).hasItem();
     this.addRenderableWidget(this.player_item_descriptions$button);
 
+    // over the item slots, left of the toggle button; the panel draws its own frame and footer, so the box shows neither
+    this.player_item_descriptions$panelX = this.leftPos + (this.imageWidth - DescriptionPanel.WIDTH) / 2;
+    this.player_item_descriptions$panelY = this.topPos + 35;
+
     this.player_item_descriptions$page = MultiLineEditBox.builder()
         .setShowDecorations(false)
-        .setTextColor(0xFFFFFFFF)
-        .setCursorColor(0xFFFFFFFF)
-        .setShowBackground(true)
+        .setTextColor(DescriptionPanel.TEXT_COLOR)
+        .setCursorColor(DescriptionPanel.TEXT_COLOR)
+        .setShowBackground(false)
         .setTextShadow(false)
-        .setX(this.leftPos + (this.imageWidth - 122) / 2)
-        .setY(this.topPos + 16)
-        .build(this.font, 122, 134, CommonComponents.EMPTY);
-    this.player_item_descriptions$page.setCharacterLimit(1024);
-    this.player_item_descriptions$page.setLineLimit(14);
+        .setX(this.player_item_descriptions$panelX + DescriptionPanel.TEXT_BOX_X)
+        .setY(this.player_item_descriptions$panelY + DescriptionPanel.TEXT_BOX_Y)
+        .build(this.font, DescriptionPanel.TEXT_BOX_WIDTH, DescriptionPanel.TEXT_BOX_HEIGHT, DescriptionPanel.TITLE);
+    this.player_item_descriptions$page.setCharacterLimit(DescriptionPanel.CHARACTER_LIMIT);
+    this.player_item_descriptions$page.setLineLimit(DescriptionPanel.LINE_LIMIT);
     this.player_item_descriptions$page.setValueListener(this::player_item_descriptions$setDescription);
     this.player_item_descriptions$page.visible = false;
     this.player_item_descriptions$page.active = false;
@@ -82,7 +92,23 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   @Override
   public void player_item_descriptions$extractPage(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 
+    if (!this.player_item_descriptions$isPageVisible()) {
+      return;
+    }
+
+    // draw above the slot items
+    graphics.nextStratum();
+    DescriptionPanel.extract(graphics, this.font, this.player_item_descriptions$panelX, this.player_item_descriptions$panelY,
+        this.player_item_descriptions$page.getValue().length());
     this.player_item_descriptions$page.extractRenderState(graphics, mouseX, mouseY, a);
+  }
+
+  @Override
+  public boolean player_item_descriptions$blocksMouse(double mouseX, double mouseY) {
+
+    return this.player_item_descriptions$isPageVisible()
+        && DescriptionPanel.isMouseOver(this.player_item_descriptions$panelX, this.player_item_descriptions$panelY, mouseX, mouseY)
+        && !this.player_item_descriptions$page.isMouseOver(mouseX, mouseY);
   }
 
   @Inject(at = @At("HEAD"), method = "keyPressed", cancellable = true)
