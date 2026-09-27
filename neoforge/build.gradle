@@ -3,6 +3,15 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
+dependencies {
+
+    // Puzzles Lib https://modrinth.com/mod/puzzles-lib (for Easy Anvils)
+    implementation 'maven.modrinth:QAGBst4M:EgWWSAhJ'
+
+    // Easy Anvils https://modrinth.com/mod/easy-anvils (compatibility testing)
+    implementation 'maven.modrinth:OZBR5JT5:fSQSKhdF'
+}
+
 neoForge {
     version = neoforge_version
     // Automatically enable neoforge AccessTransformers if the file exists

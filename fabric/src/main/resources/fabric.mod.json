@@ -3,13 +3,14 @@
     "id": "${mod_id}",
     "version": "${version}",
     "name": "${mod_name}",
-    "description": "${description}",
+    "description": "${description} ${credits}",
     "authors": [
         "${mod_author}"
     ],
     "contact": {
-        "homepage": "https://github.com/jason13official/Player-Item-Descriptions-Mod",
-        "sources": "https://github.com/jason13official/Player-Item-Descriptions-Mod"
+        "homepage": "${github_url}",
+        "sources": "${github_url}",
+        "issues": "${github_url}/issues"
     },
     "license": "${license}",
     "icon": "${mod_id}.png",

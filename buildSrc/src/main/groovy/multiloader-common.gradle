@@ -14,6 +14,9 @@ java {
 }
 
 repositories {
+    maven {
+        url = 'https://api.modrinth.com/maven'
+    }
     mavenCentral()
     // https://docs.gradle.org/current/userguide/declaring_repositories.html#declaring_content_exclusively_found_in_one_repository
     exclusiveContent {
@@ -85,6 +88,7 @@ processResources {
     var expandProps = [
             'version'                      : version,
             'group'                        : project.group, //Else we target the task's group.
+            'github_url'                   : github_url,
             'minecraft_version'            : minecraft_version,
             'minecraft_version_range'      : minecraft_version_range,
             'fabric_version'               : fabric_version,

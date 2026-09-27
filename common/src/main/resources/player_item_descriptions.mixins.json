@@ -6,11 +6,17 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AnvilMenuMixin",
-    "ItemStackMixin"
+    "ItemStackMixin",
+    "compat.easyanvils.ModAnvilMenuMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",
     "AnvilScreenMixin",
+    "ItemCombinerScreenMixin",
+    "MultiLineEditBoxAccessor",
+    "MultilineTextFieldAccessor",
+    "MultilineTextFieldMixin",
+    "StringDecomposerMixin",
     "MixinMinecraft"
   ],
   "server": [],

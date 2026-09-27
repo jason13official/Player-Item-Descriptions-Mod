@@ -10,6 +10,18 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    // Mod Menu https://modrinth.com/mod/modmenu (for general parity)
+    modImplementation 'maven.modrinth:mOgUt4GM:6lgOkclV'
+
+    // Forge Config Api Port https://modrinth.com/mod/forge-config-api-port (for Puzzles Lib + Easy Anvils)
+    modImplementation 'maven.modrinth:ohNO6lps:N5qzq0XV'
+
+    // Puzzles Lib https://modrinth.com/mod/puzzles-lib (for Easy Anvils)
+    modImplementation 'maven.modrinth:QAGBst4M:L007zH3l'
+
+    // Easy Anvils https://modrinth.com/mod/easy-anvils (compatibility testing)
+    modImplementation 'maven.modrinth:OZBR5JT5:znaWBlgU'
 }
 
 loom {
