@@ -2,6 +2,7 @@ package io.github.jason13official.player_item_descriptions.impl.network.packet;
 
 import io.github.jason13official.player_item_descriptions.Constants;
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilMenuAccessor;
+import io.github.jason13official.player_item_descriptions.impl.anvil.AnvilDescriptions;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -10,8 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AnvilMenu;
 
 public class DescribeItemC2SPacket implements CustomPacketPayload {
-
-  public static final int MAX_DESCRIPTION_LENGTH = 1024;
 
   public static final CustomPacketPayload.Type<DescribeItemC2SPacket> TYPE = new Type<DescribeItemC2SPacket>(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "describe_item"));
 
@@ -24,11 +23,11 @@ public class DescribeItemC2SPacket implements CustomPacketPayload {
   }
 
   private DescribeItemC2SPacket(FriendlyByteBuf input) {
-    this.description = input.readUtf(MAX_DESCRIPTION_LENGTH);
+    this.description = input.readUtf(AnvilDescriptions.MAX_LENGTH);
   }
 
   private void write(FriendlyByteBuf output) {
-    output.writeUtf(this.description, MAX_DESCRIPTION_LENGTH);
+    output.writeUtf(this.description, AnvilDescriptions.MAX_LENGTH);
   }
 
   @Override

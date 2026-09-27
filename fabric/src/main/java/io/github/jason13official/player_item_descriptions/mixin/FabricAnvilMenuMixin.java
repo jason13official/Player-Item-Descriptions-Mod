@@ -40,7 +40,7 @@ public abstract class FabricAnvilMenuMixin implements IAnvilMenuAccessor {
   @Override
   public boolean player_item_descriptions$setItemDescription(String description) {
 
-    String validated = player_item_descriptions$validateDescription(description);
+    String validated = AnvilDescriptions.validate(description);
 
     if (validated == null || validated.equals(this.player_item_descriptions$itemDescription)) {
       return false;
@@ -52,8 +52,7 @@ public abstract class FabricAnvilMenuMixin implements IAnvilMenuAccessor {
   }
 
   @Inject(
-      method = {"createResult"},
-      require = 1,
+      method = "createResult",
       at = @At(
           value = "FIELD",
           target = "Lnet/minecraft/world/inventory/AnvilMenu;repairItemCountCost:I",
@@ -71,12 +70,5 @@ public abstract class FabricAnvilMenuMixin implements IAnvilMenuAccessor {
       namingCost.set(namingCost.get() + 1);
       price.set(price.get() + 1);
     }
-  }
-
-  @Unique
-  private static String player_item_descriptions$validateDescription(String description) {
-
-    String filtered = AnvilDescriptions.filter(description);
-    return filtered.length() <= 1024 ? filtered : null;
   }
 }

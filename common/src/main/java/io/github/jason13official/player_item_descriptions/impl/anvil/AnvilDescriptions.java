@@ -8,6 +8,8 @@ import org.jspecify.annotations.Nullable;
 
 public final class AnvilDescriptions {
 
+  public static final int MAX_LENGTH = 1024;
+
   public static boolean apply(@Nullable String description, ItemStack input, ItemStack result) {
 
     if (description == null) {
@@ -33,6 +35,12 @@ public final class AnvilDescriptions {
 
     result.set(ModComponents.CUSTOM_DESCRIPTION, Component.literal(description));
     return true;
+  }
+
+  public static @Nullable String validate(String description) {
+
+    String filtered = filter(description);
+    return filtered.length() <= MAX_LENGTH ? filtered : null;
   }
 
   public static String filter(String description) {

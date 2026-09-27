@@ -4,6 +4,7 @@ import io.github.jason13official.player_item_descriptions.PlayerItemDescriptions
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilMenuAccessor;
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilScreenAccessor;
 import io.github.jason13official.player_item_descriptions.api.common.access.IFormattingAccessor;
+import io.github.jason13official.player_item_descriptions.impl.anvil.AnvilDescriptions;
 import io.github.jason13official.player_item_descriptions.impl.network.packet.DescribeItemC2SPacket;
 import io.github.jason13official.player_item_descriptions.impl.registry.ModComponents;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -37,9 +38,6 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
 
   @Unique
   private MultiLineEditBox player_item_descriptions$page;
-
-  @Unique
-  private String player_item_descriptions$description = "";
 
   @Unique
   private SlotChangeListener player_item_descriptions$slotListener;
@@ -78,20 +76,18 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         .setX(this.player_item_descriptions$panelX + DescriptionPanel.TEXT_BOX_X)
         .setY(this.player_item_descriptions$panelY + DescriptionPanel.TEXT_BOX_Y)
         .build(this.font, DescriptionPanel.TEXT_BOX_WIDTH, DescriptionPanel.TEXT_BOX_HEIGHT, DescriptionPanel.TITLE);
-    this.player_item_descriptions$page.setCharacterLimit(DescriptionPanel.CHARACTER_LIMIT);
+    this.player_item_descriptions$page.setCharacterLimit(AnvilDescriptions.MAX_LENGTH);
     this.player_item_descriptions$page.setLineLimit(DescriptionPanel.LINE_LIMIT);
     ((IFormattingAccessor) this.player_item_descriptions$page).player_item_descriptions$setAllowFormatting(true);
-    this.player_item_descriptions$page.setValueListener(this::player_item_descriptions$setDescription);
     this.player_item_descriptions$page.visible = false;
     this.player_item_descriptions$page.active = false;
     this.addWidget(this.player_item_descriptions$page);
 
-    // subInit also runs on resize, when the menu may already hold a pending description
+    // init also runs on resize, when the menu may already hold a pending description
     String pending = ((IAnvilMenuAccessor) this.menu).player_item_descriptions$getItemDescription();
 
     if (pending != null) {
       this.player_item_descriptions$page.setValue(pending);
-      this.player_item_descriptions$description = pending;
     } else {
       this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
     }
@@ -140,7 +136,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   @Inject(at = @At("HEAD"), method = "keyPressed", cancellable = true)
   private void player_item_descriptions$keyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
 
-    if (this.player_item_descriptions$page == null || !this.player_item_descriptions$page.visible) {
+    if (!this.player_item_descriptions$isPageVisible()) {
       return;
     }
 
@@ -172,7 +168,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
       return;
     }
 
-    this.player_item_descriptions$applyDescription(this.player_item_descriptions$description);
+    this.player_item_descriptions$applyDescription(this.player_item_descriptions$page.getValue());
 
     if (this.player_item_descriptions$page.visible) {
       this.setFocused(this.player_item_descriptions$page);
@@ -221,26 +217,15 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   private void player_item_descriptions$readDescription(ItemStack itemStack) {
 
     Component description = itemStack.get(ModComponents.CUSTOM_DESCRIPTION);
-    String value = description == null ? "" : description.getString();
-
-    this.player_item_descriptions$page.setValue(value);
-    this.player_item_descriptions$description = value;
+    this.player_item_descriptions$page.setValue(description == null ? "" : description.getString());
   }
 
   @Unique
   private void player_item_descriptions$applyDescription(String description) {
 
-    this.player_item_descriptions$description = description;
-
     if (((IAnvilMenuAccessor) this.menu).player_item_descriptions$setItemDescription(description)) {
 
       PlayerItemDescriptionsClient.c2s.accept(new DescribeItemC2SPacket(description));
     }
-  }
-
-  @Unique
-  private void player_item_descriptions$setDescription(String newDescription) {
-
-    this.player_item_descriptions$description = newDescription;
   }
 }

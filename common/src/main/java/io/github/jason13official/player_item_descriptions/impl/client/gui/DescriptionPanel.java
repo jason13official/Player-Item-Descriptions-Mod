@@ -1,6 +1,7 @@
 package io.github.jason13official.player_item_descriptions.impl.client.gui;
 
 import io.github.jason13official.player_item_descriptions.Constants;
+import io.github.jason13official.player_item_descriptions.impl.anvil.AnvilDescriptions;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
@@ -11,7 +12,6 @@ public final class DescriptionPanel {
 
   public static final int WIDTH = 122;
   public static final int LINE_LIMIT = 14;
-  public static final int CHARACTER_LIMIT = 1024;
 
   /// lines shown at once; the edit box scrolls to the cursor for the rest
   private static final int VISIBLE_LINES = 4;
@@ -64,7 +64,7 @@ public final class DescriptionPanel {
     graphics.text(font, TITLE, textLeft, y + HEADER_Y, TEXT_COLOR, false);
     graphics.text(font, CLOSE_HINT, textLeft, y + FOOTER_Y, TEXT_COLOR, false);
 
-    Component count = Component.translatable("gui.multiLineEditBox.character_limit", characterCount, CHARACTER_LIMIT);
+    Component count = Component.translatable("gui.multiLineEditBox.character_limit", characterCount, AnvilDescriptions.MAX_LENGTH);
     graphics.text(font, count, textRight - font.width(count), y + FOOTER_Y, TEXT_COLOR, false);
   }
 
