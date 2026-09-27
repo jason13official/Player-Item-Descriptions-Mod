@@ -43,9 +43,6 @@ public final class DescriptionPanel {
   public static final Component TITLE = Component.translatable("gui." + Constants.MOD_ID + ".description.title");
   private static final Component CLOSE_HINT = Component.translatable("gui." + Constants.MOD_ID + ".description.close_hint");
 
-  private DescriptionPanel() {
-  }
-
   public static void extract(GuiGraphicsExtractor graphics, Font font, int x, int y, int characterCount) {
 
     // raised frame, like vanilla container backgrounds

@@ -3,8 +3,7 @@ package io.github.jason13official.player_item_descriptions.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilMenuAccessor;
-import io.github.jason13official.player_item_descriptions.impl.registry.ModComponents;
-import net.minecraft.network.chat.Component;
+import io.github.jason13official.player_item_descriptions.impl.anvil.AnvilDescriptions;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
@@ -69,25 +68,7 @@ public abstract class FabricAnvilMenuMixin implements IAnvilMenuAccessor {
       @Local(name = "price") LocalIntRef price,
       @Local(name = "namingCost") LocalIntRef namingCost) {
 
-    String description = this.player_item_descriptions$itemDescription;
-
-    if (description == null) {
-      return;
-    }
-
-    Component current = input.get(ModComponents.CUSTOM_DESCRIPTION);
-    String currentDescription = current == null ? "" : current.getString();
-
-    if (StringUtil.isBlank(description)) {
-
-      if (!currentDescription.isEmpty()) {
-        result.remove(ModComponents.CUSTOM_DESCRIPTION);
-        namingCost.set(namingCost.get() + 1);
-        price.set(price.get() + 1);
-      }
-    } else if (!description.equals(currentDescription)) {
-
-      result.set(ModComponents.CUSTOM_DESCRIPTION, Component.literal(description));
+    if (AnvilDescriptions.apply(this.player_item_descriptions$itemDescription, input, result)) {
       namingCost.set(namingCost.get() + 1);
       price.set(price.get() + 1);
     }

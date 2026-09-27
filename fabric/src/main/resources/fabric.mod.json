@@ -3,13 +3,14 @@
     "id": "${mod_id}",
     "version": "${version}",
     "name": "${mod_name}",
-    "description": "${description}",
+    "description": "${description} ${credits}",
     "authors": [
         "${mod_author}"
     ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "homepage": "${github_url}",
+        "sources": "${github_url}",
+        "issues": "${github_url}/issues"
     },
     "license": "${license}",
     "icon": "${mod_id}.png",

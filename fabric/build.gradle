@@ -7,6 +7,9 @@ dependencies {
     implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
     implementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
 
+  // Mod Menu https://modrinth.com/mod/modmenu (for general parity)
+  implementation 'maven.modrinth:mOgUt4GM:kyy7dbrZ'
+
   // Forge Config Api Port https://modrinth.com/mod/forge-config-api-port (for Puzzles Lib + Easy Anvils)
   implementation 'maven.modrinth:ohNO6lps:JpKvrr9J'
 

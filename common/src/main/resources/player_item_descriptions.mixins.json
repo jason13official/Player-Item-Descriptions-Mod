@@ -4,11 +4,13 @@
   "package": "io.github.jason13official.player_item_descriptions.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "ItemStackMixin"
+    "ItemStackMixin",
+    "compat.easyanvils.ModAnvilMenuMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",
     "AnvilScreenMixin",
+    "ItemCombinerScreenMixin",
     "MixinMinecraft"
   ],
   "server": [],

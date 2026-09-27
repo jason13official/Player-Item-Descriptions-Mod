@@ -13,10 +13,10 @@ import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.input.KeyEvent;
 import io.github.jason13official.player_item_descriptions.impl.client.gui.DescriptionPanel;
+import io.github.jason13official.player_item_descriptions.impl.client.gui.SlotChangeListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +24,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AnvilScreen.class)
@@ -42,6 +41,9 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   private String player_item_descriptions$description = "";
 
   @Unique
+  private SlotChangeListener player_item_descriptions$slotListener;
+
+  @Unique
   private int player_item_descriptions$panelX;
 
   @Unique
@@ -52,8 +54,10 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     super(menu, inventory, title, menuResource);
   }
 
-  @Inject(at = @At("TAIL"), method = "subInit")
-  private void player_item_descriptions$subInit(CallbackInfo ci) {
+  @Override
+  public void player_item_descriptions$init() {
+
+    this.player_item_descriptions$removed();
 
     this.player_item_descriptions$button = Button.builder(Component.literal("T_"),
         b -> this.player_item_descriptions$togglePage()).bounds(this.leftPos + 154, this.topPos + 47, 16, 16).build();
@@ -88,6 +92,18 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
       this.player_item_descriptions$description = pending;
     } else {
       this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
+    }
+
+    this.player_item_descriptions$slotListener = new SlotChangeListener(this::player_item_descriptions$slotChanged);
+    this.menu.addSlotListener(this.player_item_descriptions$slotListener);
+  }
+
+  @Override
+  public void player_item_descriptions$removed() {
+
+    if (this.player_item_descriptions$slotListener != null) {
+      this.menu.removeSlotListener(this.player_item_descriptions$slotListener);
+      this.player_item_descriptions$slotListener = null;
     }
   }
 
@@ -139,8 +155,8 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     }
   }
 
-  @Inject(at = @At("TAIL"), method = "slotChanged")
-  private void player_item_descriptions$slotChanged(AbstractContainerMenu container, int slotIndex, ItemStack itemStack, CallbackInfo ci) {
+  @Unique
+  private void player_item_descriptions$slotChanged(int slotIndex, ItemStack itemStack) {
 
     if (slotIndex != 0) {
       return;
