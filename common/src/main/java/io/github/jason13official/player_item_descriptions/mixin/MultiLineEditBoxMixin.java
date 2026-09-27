@@ -75,6 +75,7 @@ public abstract class MultiLineEditBoxMixin extends AbstractTextAreaWidget imple
     }
 
     ci.cancel();
+    LiteralFormatting.reset();
 
     String value = this.textField.value();
     List<int[]> lines = LiteralFormatting.splitLines(this.font, value, this.width - this.totalInnerPadding());
@@ -102,6 +103,12 @@ public abstract class MultiLineEditBoxMixin extends AbstractTextAreaWidget imple
       }
 
       y += 9;
+    }
+
+    if (!cursorFound) {
+      int[] last = lines.getLast();
+      cursorX = left + LiteralFormatting.width(this.font, value, last[0], last[1]);
+      cursorY = top + (lines.size() - 1) * 9;
     }
 
     if (showCursor && this.withinContentAreaTopBottom(cursorY, cursorY + 9)) {

@@ -3,7 +3,7 @@ package io.github.jason13official.player_item_descriptions.mixin;
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilScreenAccessor;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,30 +22,12 @@ public abstract class AbstractContainerScreenMixin {
     }
   }
 
-  @Inject(at = @At("HEAD"), method = "mouseClicked", cancellable = true)
-  private void player_item_descriptions$mouseClicked(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
+  @Inject(at = @At("HEAD"), method = "getHoveredSlot", cancellable = true)
+  private void player_item_descriptions$getHoveredSlot(double x, double y, CallbackInfoReturnable<Slot> cir) {
 
-    if ((Object) this instanceof IAnvilScreenAccessor accessor && accessor.player_item_descriptions$blocksMouse(event.x(), event.y())) {
+    if ((Object) this instanceof IAnvilScreenAccessor accessor && accessor.player_item_descriptions$isOverPanel(x, y)) {
 
-      cir.setReturnValue(true);
-    }
-  }
-
-  @Inject(at = @At("HEAD"), method = "mouseReleased", cancellable = true)
-  private void player_item_descriptions$mouseReleased(MouseButtonEvent event, CallbackInfoReturnable<Boolean> cir) {
-
-    if ((Object) this instanceof IAnvilScreenAccessor accessor && accessor.player_item_descriptions$blocksMouse(event.x(), event.y())) {
-
-      cir.setReturnValue(true);
-    }
-  }
-
-  @Inject(at = @At("HEAD"), method = "extractTooltip", cancellable = true)
-  private void player_item_descriptions$extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
-
-    if ((Object) this instanceof IAnvilScreenAccessor accessor && accessor.player_item_descriptions$isPageVisible()) {
-
-      ci.cancel();
+      cir.setReturnValue(null);
     }
   }
 }

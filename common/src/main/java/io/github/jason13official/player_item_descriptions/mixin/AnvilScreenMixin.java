@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.input.KeyEvent;
+import io.github.jason13official.player_item_descriptions.impl.client.gui.DescriptionButton;
 import io.github.jason13official.player_item_descriptions.impl.client.gui.DescriptionPanel;
 import io.github.jason13official.player_item_descriptions.impl.client.gui.SlotChangeListener;
 import net.minecraft.network.chat.Component;
@@ -58,8 +59,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
 
     this.player_item_descriptions$removed();
 
-    this.player_item_descriptions$button = Button.builder(Component.literal("T_"),
-        b -> this.player_item_descriptions$togglePage()).bounds(this.leftPos + 154, this.topPos + 47, 16, 16).build();
+    this.player_item_descriptions$button = new DescriptionButton(this.leftPos + 154, this.topPos + 47, b -> this.player_item_descriptions$togglePage());
     this.player_item_descriptions$button.active = this.menu.getSlot(0).hasItem();
     this.addRenderableWidget(this.player_item_descriptions$button);
 
@@ -77,8 +77,9 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         .setY(this.player_item_descriptions$panelY + DescriptionPanel.TEXT_BOX_Y)
         .build(this.font, DescriptionPanel.TEXT_BOX_WIDTH, DescriptionPanel.TEXT_BOX_HEIGHT, DescriptionPanel.TITLE);
     this.player_item_descriptions$page.setCharacterLimit(AnvilDescriptions.MAX_LENGTH);
-    this.player_item_descriptions$page.setLineLimit(DescriptionPanel.LINE_LIMIT);
+    this.player_item_descriptions$page.setLineLimit(AnvilDescriptions.MAX_LINES);
     ((IFormattingAccessor) this.player_item_descriptions$page).player_item_descriptions$setAllowFormatting(true);
+    this.player_item_descriptions$page.setValueListener(this::player_item_descriptions$applyDescription);
     this.player_item_descriptions$page.visible = false;
     this.player_item_descriptions$page.active = false;
     this.addWidget(this.player_item_descriptions$page);
@@ -126,11 +127,10 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   }
 
   @Override
-  public boolean player_item_descriptions$blocksMouse(double mouseX, double mouseY) {
+  public boolean player_item_descriptions$isOverPanel(double mouseX, double mouseY) {
 
     return this.player_item_descriptions$isPageVisible()
-        && DescriptionPanel.isMouseOver(this.player_item_descriptions$panelX, this.player_item_descriptions$panelY, mouseX, mouseY)
-        && !this.player_item_descriptions$page.isMouseOver(mouseX, mouseY);
+        && DescriptionPanel.isMouseOver(this.player_item_descriptions$panelX, this.player_item_descriptions$panelY, mouseX, mouseY);
   }
 
   @Inject(at = @At("HEAD"), method = "keyPressed", cancellable = true)
@@ -142,7 +142,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
 
     if (event.isEscape()) {
 
-      this.player_item_descriptions$closePage(true);
+      this.player_item_descriptions$closePage();
       cir.setReturnValue(true);
       return;
     }
@@ -164,11 +164,9 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     this.player_item_descriptions$readDescription(itemStack);
 
     if (itemStack.isEmpty()) {
-      this.player_item_descriptions$closePage(false);
+      this.player_item_descriptions$closePage();
       return;
     }
-
-    this.player_item_descriptions$applyDescription(this.player_item_descriptions$page.getValue());
 
     if (this.player_item_descriptions$page.visible) {
       this.setFocused(this.player_item_descriptions$page);
@@ -179,7 +177,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   private void player_item_descriptions$togglePage() {
 
     if (this.player_item_descriptions$page.visible) {
-      this.player_item_descriptions$closePage(true);
+      this.player_item_descriptions$closePage();
     } else {
       this.player_item_descriptions$openPage();
     }
@@ -201,16 +199,12 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   }
 
   @Unique
-  private void player_item_descriptions$closePage(boolean apply) {
+  private void player_item_descriptions$closePage() {
 
     this.player_item_descriptions$page.visible = false;
     this.player_item_descriptions$page.active = false;
     this.name.active = true;
     this.setFocused(this.name);
-
-    if (apply) {
-      this.player_item_descriptions$applyDescription(this.player_item_descriptions$page.getValue());
-    }
   }
 
   @Unique
@@ -223,7 +217,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   @Unique
   private void player_item_descriptions$applyDescription(String description) {
 
-    if (((IAnvilMenuAccessor) this.menu).player_item_descriptions$setItemDescription(description)) {
+    if (this.menu.getSlot(0).hasItem() && ((IAnvilMenuAccessor) this.menu).player_item_descriptions$setItemDescription(description)) {
 
       PlayerItemDescriptionsClient.c2s.accept(new DescribeItemC2SPacket(description));
     }

@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 public final class DescriptionPanel {
 
   public static final int WIDTH = 122;
-  public static final int LINE_LIMIT = 14;
 
   /// lines shown at once; the edit box scrolls to the cursor for the rest
   private static final int VISIBLE_LINES = 4;

@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 public final class AnvilDescriptions {
 
   public static final int MAX_LENGTH = 1024;
+  public static final int MAX_LINES = 14;
 
   public static boolean apply(@Nullable String description, ItemStack input, ItemStack result) {
 
@@ -40,7 +41,7 @@ public final class AnvilDescriptions {
   public static @Nullable String validate(String description) {
 
     String filtered = filter(description);
-    return filtered.length() <= MAX_LENGTH ? filtered : null;
+    return filtered.length() <= MAX_LENGTH && filtered.chars().filter(character -> character == '\n').count() < MAX_LINES ? filtered : null;
   }
 
   public static String filter(String description) {

@@ -7,17 +7,28 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.FormattedCharSink;
+import org.jspecify.annotations.Nullable;
 
 public final class LiteralFormatting {
 
   private static int depth;
+  private static @Nullable Thread owner;
 
   public static boolean isActive() {
-    return depth > 0;
+    return depth > 0 && Thread.currentThread() == owner;
   }
 
   public static void begin() {
+
+    if (depth == 0) {
+      owner = Thread.currentThread();
+    }
+
     depth++;
+  }
+
+  public static void reset() {
+    depth = 0;
   }
 
   public static void end() {
