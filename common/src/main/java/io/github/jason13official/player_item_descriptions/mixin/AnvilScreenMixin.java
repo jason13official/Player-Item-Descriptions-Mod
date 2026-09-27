@@ -3,6 +3,7 @@ package io.github.jason13official.player_item_descriptions.mixin;
 import io.github.jason13official.player_item_descriptions.PlayerItemDescriptionsClient;
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilMenuAccessor;
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilScreenAccessor;
+import io.github.jason13official.player_item_descriptions.api.common.access.IFormattingAccessor;
 import io.github.jason13official.player_item_descriptions.impl.network.packet.DescribeItemC2SPacket;
 import io.github.jason13official.player_item_descriptions.impl.registry.ModComponents;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -79,6 +80,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         .build(this.font, DescriptionPanel.TEXT_BOX_WIDTH, DescriptionPanel.TEXT_BOX_HEIGHT, DescriptionPanel.TITLE);
     this.player_item_descriptions$page.setCharacterLimit(DescriptionPanel.CHARACTER_LIMIT);
     this.player_item_descriptions$page.setLineLimit(DescriptionPanel.LINE_LIMIT);
+    ((IFormattingAccessor) this.player_item_descriptions$page).player_item_descriptions$setAllowFormatting(true);
     this.player_item_descriptions$page.setValueListener(this::player_item_descriptions$setDescription);
     this.player_item_descriptions$page.visible = false;
     this.player_item_descriptions$page.active = false;

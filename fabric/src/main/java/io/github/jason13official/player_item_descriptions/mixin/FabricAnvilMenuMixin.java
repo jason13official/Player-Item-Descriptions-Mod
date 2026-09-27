@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import io.github.jason13official.player_item_descriptions.api.common.access.IAnvilMenuAccessor;
 import io.github.jason13official.player_item_descriptions.impl.anvil.AnvilDescriptions;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
 import org.objectweb.asm.Opcodes;
@@ -77,7 +76,7 @@ public abstract class FabricAnvilMenuMixin implements IAnvilMenuAccessor {
   @Unique
   private static String player_item_descriptions$validateDescription(String description) {
 
-    String filtered = StringUtil.filterText(description, true);
+    String filtered = AnvilDescriptions.filter(description);
     return filtered.length() <= 1024 ? filtered : null;
   }
 }

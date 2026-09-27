@@ -34,4 +34,18 @@ public final class AnvilDescriptions {
     result.set(ModComponents.CUSTOM_DESCRIPTION, Component.literal(description));
     return true;
   }
+
+  public static String filter(String description) {
+
+    StringBuilder builder = new StringBuilder();
+
+    for (char character : description.toCharArray()) {
+
+      if (StringUtil.isAllowedChatCharacter(character) || character == '§' || character == '\n') {
+        builder.append(character);
+      }
+    }
+
+    return builder.toString();
+  }
 }

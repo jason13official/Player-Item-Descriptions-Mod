@@ -11,6 +11,10 @@
     "AbstractContainerScreenMixin",
     "AnvilScreenMixin",
     "ItemCombinerScreenMixin",
+    "MultiLineEditBoxMixin",
+    "MultilineTextFieldAccessor",
+    "MultilineTextFieldMixin",
+    "StringDecomposerMixin",
     "MixinMinecraft"
   ],
   "server": [],
