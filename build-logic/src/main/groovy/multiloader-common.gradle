@@ -3,6 +3,12 @@ plugins {
     id 'maven-publish'
 }
 
+repositories {
+  maven {
+    url = "https://api.modrinth.com/maven"
+  }
+}
+
 base {
     archivesName = "${mod_id}-${project.name}-${minecraft_version}"
 }
