@@ -19,11 +19,20 @@ public abstract class ModAnvilMenuMixin {
   @Inject(method = "createResult()V", at = @At("HEAD"))
   private void player_item_descriptions$createResult(CallbackInfo ci) {
 
-    String description = ((IAnvilMenuAccessor) (Object) this).player_item_descriptions$getItemDescription();
+    IAnvilMenuAccessor accessor = (IAnvilMenuAccessor) (Object) this;
 
-    if (description != null && this.builtInAnvilState instanceof IAnvilMenuAccessor builtInAnvilMenu) {
+    if (this.builtInAnvilState instanceof IAnvilMenuAccessor builtInAnvilMenu) {
 
-      builtInAnvilMenu.player_item_descriptions$setItemDescription(description);
+      String description = accessor.player_item_descriptions$getItemDescription();
+      Boolean locked = accessor.player_item_descriptions$getItemLock();
+
+      if (description != null) {
+        builtInAnvilMenu.player_item_descriptions$setItemDescription(description);
+      }
+
+      if (locked != null) {
+        builtInAnvilMenu.player_item_descriptions$setItemLock(locked);
+      }
     }
   }
 }

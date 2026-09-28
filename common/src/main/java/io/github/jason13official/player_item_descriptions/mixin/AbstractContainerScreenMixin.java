@@ -20,12 +20,21 @@ public abstract class AbstractContainerScreenMixin {
     }
   }
 
-  @Inject(at = @At("RETURN"), method = "mouseClicked")
+  @Inject(at = @At("HEAD"), method = "mouseClicked", cancellable = true)
   private void player_item_descriptions$mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+
+    if ((Object) this instanceof IAnvilScreenAccessor accessor && accessor.player_item_descriptions$mouseClicked(mouseX, mouseY, button)) {
+
+      cir.setReturnValue(true);
+    }
+  }
+
+  @Inject(at = @At("RETURN"), method = "mouseClicked")
+  private void player_item_descriptions$restoreFocus(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
 
     if ((Object) this instanceof IAnvilScreenAccessor accessor) {
 
-      accessor.player_item_descriptions$mouseClicked();
+      accessor.player_item_descriptions$restoreFocus();
     }
   }
 }

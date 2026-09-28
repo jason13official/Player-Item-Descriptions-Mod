@@ -1,4 +1,8 @@
 {
   "gui.player_item_descriptions.description.title": "DESCRIPCIÓN",
-  "gui.player_item_descriptions.description.close_hint": "ESC: cerrar"
+  "gui.player_item_descriptions.description.close_hint": "ESC: cerrar",
+  "tooltip.player_item_descriptions.description_locked": "Descripción bloqueada",
+  "gui.player_item_descriptions.description.locked": "Bloqueada",
+  "gui.player_item_descriptions.description.unlocked": "Desbloqueada",
+  "gui.player_item_descriptions.description.lock_hint": "Evita que otros jugadores editen tu descripción personalizada"
 }

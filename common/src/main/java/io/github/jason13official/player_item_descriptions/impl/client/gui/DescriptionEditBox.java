@@ -13,6 +13,8 @@ import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 /// 1.21.1's MultiLineEditBox has no line limit and always draws a character counter below itself,
 /// so we need to fill in the builder options (setLineLimit / setShowDecorations) as used on newer versions.
@@ -20,6 +22,7 @@ public class DescriptionEditBox extends MultiLineEditBox {
 
   private static final int LINE_HEIGHT = 9;
   private static final int SELECTION_COLOR = 0xFF0000FF;
+  private static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.withDefaultNamespace("widget/scroller");
 
   private final Font font;
   private final int lineLimit;
@@ -83,9 +86,14 @@ public class DescriptionEditBox extends MultiLineEditBox {
     return this.limitLines(() -> super.charTyped(codePoint, modifiers));
   }
 
-  /// line limit keeps text inside the box, so the scrollbar and character counter are never needed
   @Override
   protected void renderDecorations(GuiGraphics graphics) {
+
+    if (this.scrollbarVisible()) {
+      int barHeight = Mth.clamp((int) ((float) (this.height * this.height) / (float) (this.getInnerHeight() + 4)), 32, this.height);
+      int barY = Math.max(this.getY(), (int) this.scrollAmount() * (this.height - barHeight) / this.getMaxScrollAmount() + this.getY());
+      graphics.blitSprite(SCROLLER_SPRITE, this.getX() + this.width, barY, DescriptionPanel.SCROLLBAR_WIDTH, barHeight);
+    }
   }
 
   @Override

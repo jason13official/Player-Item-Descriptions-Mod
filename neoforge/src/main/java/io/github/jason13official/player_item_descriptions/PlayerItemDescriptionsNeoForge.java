@@ -1,6 +1,7 @@
 package io.github.jason13official.player_item_descriptions;
 
 import io.github.jason13official.player_item_descriptions.impl.network.packet.DescribeItemC2SPacket;
+import io.github.jason13official.player_item_descriptions.impl.network.packet.LockDescriptionC2SPacket;
 import io.github.jason13official.player_item_descriptions.impl.registry.ModComponents;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -40,6 +41,9 @@ public class PlayerItemDescriptionsNeoForge {
 
         // System.out.println("Describe item packet received on server!");
         if (context.player() instanceof ServerPlayer player) DescribeItemC2SPacket.handleOnServer(payload, player);
+      });
+      registrar.playToServer(LockDescriptionC2SPacket.TYPE, LockDescriptionC2SPacket.STREAM_CODEC, (payload, context) -> {
+        if (context.player() instanceof ServerPlayer player) LockDescriptionC2SPacket.handleOnServer(payload, player);
       });
     });
 

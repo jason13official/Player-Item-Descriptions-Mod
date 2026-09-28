@@ -1,4 +1,8 @@
 {
   "gui.player_item_descriptions.description.title": "DESCRIPTION",
-  "gui.player_item_descriptions.description.close_hint": "ESC: close"
+  "gui.player_item_descriptions.description.close_hint": "ESC: close",
+  "tooltip.player_item_descriptions.description_locked": "Description locked",
+  "gui.player_item_descriptions.description.locked": "Locked",
+  "gui.player_item_descriptions.description.unlocked": "Unlocked",
+  "gui.player_item_descriptions.description.lock_hint": "Prevents other players from editing your custom description"
 }

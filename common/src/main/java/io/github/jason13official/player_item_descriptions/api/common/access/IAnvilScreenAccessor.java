@@ -10,5 +10,7 @@ public interface IAnvilScreenAccessor {
 
   boolean player_item_descriptions$isOverPanel(double mouseX, double mouseY);
 
-  void player_item_descriptions$mouseClicked();
+  boolean player_item_descriptions$mouseClicked(double mouseX, double mouseY, int button);
+
+  void player_item_descriptions$restoreFocus();
 }
