@@ -1,6 +1,7 @@
 package io.github.jason13official.player_item_descriptions;
 
 import io.github.jason13official.player_item_descriptions.impl.network.packet.DescribeItemC2SPacket;
+import io.github.jason13official.player_item_descriptions.impl.network.packet.LockDescriptionC2SPacket;
 import io.github.jason13official.player_item_descriptions.impl.registry.ModComponents;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -27,6 +28,9 @@ public class PlayerItemDescriptionsFabric implements ModInitializer {
 
       DescribeItemC2SPacket.handleOnServer(payload, context.player());
     });
+
+    PayloadTypeRegistry.serverboundPlay().register(LockDescriptionC2SPacket.TYPE, LockDescriptionC2SPacket.STREAM_CODEC);
+    ServerPlayNetworking.registerGlobalReceiver(LockDescriptionC2SPacket.TYPE, (payload, context) -> LockDescriptionC2SPacket.handleOnServer(payload, context.player()));
   }
 
   public <T> void bind(Registry<T> registry, Consumer<BiConsumer<T, Identifier>> source) {

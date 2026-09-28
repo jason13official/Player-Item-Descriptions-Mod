@@ -2,8 +2,10 @@ package io.github.jason13official.player_item_descriptions.impl.client.gui;
 
 import io.github.jason13official.player_item_descriptions.Constants;
 import io.github.jason13official.player_item_descriptions.impl.anvil.AnvilDescriptions;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 
 /// The framed "Description" panel drawn behind the anvil's description text box:
@@ -30,7 +32,8 @@ public final class DescriptionPanel {
   /// the edit box fills the inset text area, inside its 1px border
   public static final int TEXT_BOX_X = PADDING + 1;
   public static final int TEXT_BOX_Y = AREA_Y + 1;
-  public static final int TEXT_BOX_WIDTH = AREA_WIDTH - 2;
+  public static final int SCROLLBAR_WIDTH = 6;
+  public static final int TEXT_BOX_WIDTH = AREA_WIDTH - 2 - SCROLLBAR_WIDTH;
   public static final int TEXT_BOX_HEIGHT = AREA_HEIGHT - 2;
 
   public static final int TEXT_COLOR = 0xFF404040;
@@ -41,6 +44,13 @@ public final class DescriptionPanel {
 
   public static final Component TITLE = Component.translatable("gui." + Constants.MOD_ID + ".description.title");
   private static final Component CLOSE_HINT = Component.translatable("gui." + Constants.MOD_ID + ".description.close_hint");
+  private static final Component LOCKED = Component.translatable("gui." + Constants.MOD_ID + ".description.locked");
+  private static final Component UNLOCKED = Component.translatable("gui." + Constants.MOD_ID + ".description.unlocked");
+  private static final Component LOCK_HINT = Component.translatable("gui." + Constants.MOD_ID + ".description.lock_hint").withStyle(ChatFormatting.GRAY);
+
+  public static Tooltip lockTooltip(boolean locked) {
+    return Tooltip.create(Component.empty().append(locked ? LOCKED : UNLOCKED).append("\n").append(LOCK_HINT));
+  }
 
   public static void extract(GuiGraphicsExtractor graphics, Font font, int x, int y, int characterCount) {
 

@@ -6,14 +6,17 @@ import io.github.jason13official.player_item_descriptions.api.common.access.IAnv
 import io.github.jason13official.player_item_descriptions.api.common.access.IFormattingAccessor;
 import io.github.jason13official.player_item_descriptions.impl.anvil.AnvilDescriptions;
 import io.github.jason13official.player_item_descriptions.impl.network.packet.DescribeItemC2SPacket;
+import io.github.jason13official.player_item_descriptions.impl.network.packet.LockDescriptionC2SPacket;
 import io.github.jason13official.player_item_descriptions.impl.registry.ModComponents;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import io.github.jason13official.player_item_descriptions.impl.client.gui.DescriptionButton;
 import io.github.jason13official.player_item_descriptions.impl.client.gui.DescriptionPanel;
 import io.github.jason13official.player_item_descriptions.impl.client.gui.SlotChangeListener;
@@ -41,6 +44,9 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   private MultiLineEditBox player_item_descriptions$page;
 
   @Unique
+  private LockIconButton player_item_descriptions$lockButton;
+
+  @Unique
   private SlotChangeListener player_item_descriptions$slotListener;
 
   @Unique
@@ -60,7 +66,6 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     this.player_item_descriptions$removed();
 
     this.player_item_descriptions$button = new DescriptionButton(this.leftPos + 154, this.topPos + 47, b -> this.player_item_descriptions$togglePage());
-    this.player_item_descriptions$button.active = this.menu.getSlot(0).hasItem();
     this.addRenderableWidget(this.player_item_descriptions$button);
 
     // over the item slots, left of the toggle button; the panel draws its own frame and footer, so the box shows neither
@@ -84,6 +89,9 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     this.player_item_descriptions$page.active = false;
     this.addWidget(this.player_item_descriptions$page);
 
+    this.player_item_descriptions$lockButton = new LockIconButton(this.leftPos + 172, this.topPos + 45,
+        b -> this.player_item_descriptions$applyLock(!this.player_item_descriptions$lockButton.isLocked()));
+
     // init also runs on resize, when the menu may already hold a pending description
     String pending = ((IAnvilMenuAccessor) this.menu).player_item_descriptions$getItemDescription();
 
@@ -92,6 +100,8 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     } else {
       this.player_item_descriptions$readDescription(this.menu.getSlot(0).getItem());
     }
+
+    this.player_item_descriptions$updateLock();
 
     this.player_item_descriptions$slotListener = new SlotChangeListener(this::player_item_descriptions$slotChanged);
     this.menu.addSlotListener(this.player_item_descriptions$slotListener);
@@ -124,6 +134,13 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     DescriptionPanel.extract(graphics, this.font, this.player_item_descriptions$panelX, this.player_item_descriptions$panelY,
         this.player_item_descriptions$page.getValue().length());
     this.player_item_descriptions$page.extractRenderState(graphics, mouseX, mouseY, a);
+    this.player_item_descriptions$lockButton.extractRenderState(graphics, mouseX, mouseY, a);
+  }
+
+  @Override
+  public boolean player_item_descriptions$mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+
+    return this.player_item_descriptions$isPageVisible() && this.player_item_descriptions$lockButton.mouseClicked(event, doubleClick);
   }
 
   @Override
@@ -160,10 +177,10 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
       return;
     }
 
-    this.player_item_descriptions$button.active = !itemStack.isEmpty();
     this.player_item_descriptions$readDescription(itemStack);
+    this.player_item_descriptions$applyLock(itemStack.has(ModComponents.DESCRIPTION_LOCK));
 
-    if (itemStack.isEmpty()) {
+    if (itemStack.isEmpty() || !this.player_item_descriptions$button.active) {
       this.player_item_descriptions$closePage();
       return;
     }
@@ -212,6 +229,30 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
 
     Component description = itemStack.get(ModComponents.CUSTOM_DESCRIPTION);
     this.player_item_descriptions$page.setValue(description == null ? "" : description.getString());
+  }
+
+  @Unique
+  private void player_item_descriptions$applyLock(boolean locked) {
+
+    if (this.menu.getSlot(0).hasItem() && ((IAnvilMenuAccessor) this.menu).player_item_descriptions$setItemLock(locked)) {
+
+      PlayerItemDescriptionsClient.c2s.accept(new LockDescriptionC2SPacket(locked));
+    }
+
+    this.player_item_descriptions$updateLock();
+  }
+
+  @Unique
+  private void player_item_descriptions$updateLock() {
+
+    ItemStack input = this.menu.getSlot(0).getItem();
+    Boolean pending = ((IAnvilMenuAccessor) this.menu).player_item_descriptions$getItemLock();
+    boolean editable = !input.isEmpty() && AnvilDescriptions.canEdit(input, this.minecraft.player);
+
+    this.player_item_descriptions$lockButton.setLocked(pending != null ? pending : input.has(ModComponents.DESCRIPTION_LOCK));
+    this.player_item_descriptions$lockButton.setTooltip(DescriptionPanel.lockTooltip(this.player_item_descriptions$lockButton.isLocked()));
+    this.player_item_descriptions$lockButton.active = editable;
+    this.player_item_descriptions$button.active = editable;
   }
 
   @Unique
