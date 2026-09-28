@@ -119,6 +119,35 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
   }
 
   @Override
+  public boolean player_item_descriptions$mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+
+    if (!this.player_item_descriptions$isDraggingPage(button)) {
+      return false;
+    }
+
+    this.player_item_descriptions$page.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    return true;
+  }
+
+  @Override
+  public boolean player_item_descriptions$mouseReleased(double mouseX, double mouseY, int button) {
+
+    if (!this.player_item_descriptions$isDraggingPage(button)) {
+      return false;
+    }
+
+    this.setDragging(false);
+    this.player_item_descriptions$page.mouseReleased(mouseX, mouseY, button);
+    return true;
+  }
+
+  @Unique
+  private boolean player_item_descriptions$isDraggingPage(int button) {
+
+    return button == 0 && this.isDragging() && this.player_item_descriptions$isPageVisible() && this.getFocused() == this.player_item_descriptions$page;
+  }
+
+  @Override
   public void player_item_descriptions$restoreFocus() {
 
     if (this.getFocused() == this.player_item_descriptions$button) {
